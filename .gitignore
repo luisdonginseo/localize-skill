@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+work/
+*.reviewed.json
+glossary-cache/
+.DS_Store
