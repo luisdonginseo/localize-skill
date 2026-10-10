@@ -22,16 +22,20 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from _common import (budget_for, html_tags, load_config, load_glossary,   # noqa: E402
-                     placeholders, read_bundle, tag_names)
+from _common import (budget_for, dnt_for_lang, html_tags, load_config,   # noqa: E402
+                     load_glossary, placeholders, read_bundle, tag_names)
 
 ERROR, WARN = "error", "warn"
 
 
-def check(bundle_path: str, cfg: dict) -> tuple[list[dict], dict]:
-    _, items = read_bundle(bundle_path)
+def check(bundle_path: str, cfg: dict, lang: str | None = None) -> tuple[list[dict], dict]:
+    meta, items = read_bundle(bundle_path)
     gloss = load_glossary(cfg)
-    dnt = [w for w in gloss.get("do_not_translate", []) if w]
+    # 금지어 규칙은 언어마다 다를 수 있다(플랫폼 용어집이 한 언어에서만 다르게 옮기는 경우).
+    # 언어는 --lang 이 우선이고, 없으면 번들에 적힌 target_lang 이다
+    lang = lang or meta.get("target_lang", "")
+    dnt, dnt_replace = dnt_for_lang(gloss, lang)
+    dnt = [w for w in dnt if w]
     findings: list[dict] = []
 
     def add(level, kind, item, detail):
@@ -49,7 +53,8 @@ def check(bundle_path: str, cfg: dict) -> tuple[list[dict], dict]:
         if not tgt:
             add(ERROR, "missing", it, "번역이 비어 있다")
             continue
-        if tgt == it.source and len(it.source) > 3 and it.source not in dnt:
+        if (tgt == it.source and len(it.source) > 3
+                and it.source not in dnt and it.source not in dnt_replace):
             add(WARN, "unchanged", it, "원문과 같다 —— 번역이 안 된 것일 수 있다")
 
         # 2. 플레이스홀더 —— 사라지거나 번호가 바뀌면 런타임에 깨진다
@@ -70,6 +75,18 @@ def check(bundle_path: str, cfg: dict) -> tuple[list[dict], dict]:
         for w in dnt:
             if w in it.source and w not in tgt:
                 add(ERROR, "do-not-translate", it, f"'{w}' 가 번역문에 그대로 없다")
+        # 이 언어에서 대체어를 쓰기로 한 금지어 —— 대체어가 있어야 하고, 원문 용어가 남으면 안 된다
+        for w, repl in dnt_replace.items():
+            if w not in it.source:
+                continue
+            if repl not in tgt:
+                add(ERROR, "do-not-translate", it,
+                    f"'{w}' 는 {lang} 에서 대체어 '{repl}' 을 써야 하는데 번역문에 없다")
+            # 대체어가 원문 용어를 품고 있을 수 있다(Wi-Fi → Wi-Fi-Netz). 대체어를 걷어낸 뒤에도
+            # 원문 용어가 남아 있을 때만 '그대로 둔 것' 으로 본다
+            if w in tgt.replace(repl, ""):
+                add(ERROR, "do-not-translate", it,
+                    f"'{w}' 가 번역문에 그대로 남아 있다 —— {lang} 에서는 '{repl}' 을 써야 한다")
 
         # 5. 길이 —— 경보이지 오류가 아니다
         ratio = budget_for(cfg, it.kind)
@@ -143,10 +160,11 @@ def main() -> int:
     ap.add_argument("--source", required=True, help="번역이 채워진 번들 JSON")
     ap.add_argument("--config", required=True)
     ap.add_argument("--json", action="store_true", help="사람용 리포트 대신 JSON")
+    ap.add_argument("--lang", help="대상 언어(기본: 번들의 target_lang) —— 금지어 예외를 고를 때 쓴다")
     a = ap.parse_args()
 
     cfg = load_config(a.config)
-    findings, summary = check(a.source, cfg)
+    findings, summary = check(a.source, cfg, a.lang)
     if a.json:
         print(json.dumps({"summary": summary, "findings": findings},
                          ensure_ascii=False, indent=2))

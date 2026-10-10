@@ -161,11 +161,82 @@ def load_config(path: str | Path) -> dict:
     cfg = json.loads(p.read_text(encoding="utf-8"))
     cfg.setdefault("source", "en")
     cfg.setdefault("targets", [])
-    cfg.setdefault("do_not_translate", [])
+    # 번역 금지어: 문자열과 {"term", "except"} 객체를 섞어 쓸 수 있다.
+    # cfg["do_not_translate"] 는 예전처럼 **용어 문자열 목록**으로 두고(기존 소비자 호환),
+    # 언어별 예외는 cfg["do_not_translate_except"] = {용어: {언어: 대체어}} 로 따로 둔다.
+    terms, excepts = parse_do_not_translate(cfg.get("do_not_translate", []), f"{p}")
+    cfg["do_not_translate"] = terms
+    cfg["do_not_translate_except"] = excepts
     cfg.setdefault("length_budget", dict(DEFAULT_BUDGET))
     cfg.setdefault("units", [])
     cfg["_root"] = str(p.parent.resolve())
     return cfg
+
+
+def parse_do_not_translate(entries, where: str = "do_not_translate") -> tuple[list[str], dict]:
+    """번역 금지어 목록을 (용어 목록, 언어별 예외)로 풀어 준다.
+
+    항목은 두 가지 모양이다. 섞어 써도 된다.
+      "Wi-Fi"                                          모든 언어에서 그대로 둔다
+      {"term": "Wi-Fi", "except": {"de": "WLAN"}}      de 에서만 원문 용어가 정확히 "WLAN" 이 된다
+
+    플랫폼 용어집이 어떤 언어에서 금지어를 다르게 옮기는 일이 있다(세 용어집 모두
+    독일어에서 Wi-Fi 를 WLAN 으로). 그때 금지어를 목록에서 빼면 다른 언어까지
+    무방비가 되므로, 그 언어만 예외로 적는다.
+
+    모양이 틀리면 조용히 넘기지 않고 멈춘다 —— 설정 오타로 금지어 검사가 꺼지면
+    아무도 모르기 때문이다.
+    """
+    if entries is None:
+        entries = []
+    if not isinstance(entries, list):
+        raise SystemExit(f"{where}: do_not_translate 는 목록이어야 한다 (받은 것: {type(entries).__name__})")
+    terms: list[str] = []
+    excepts: dict[str, dict[str, str]] = {}
+    for n, e in enumerate(entries):
+        if isinstance(e, str):
+            term, exc = e, {}
+        elif isinstance(e, dict):
+            term, exc = e.get("term"), e.get("except", {})
+            extra = set(e) - {"term", "except"}
+            if extra:
+                raise SystemExit(f"{where}: do_not_translate[{n}] 에 모르는 키 {sorted(extra)} "
+                                 f"—— 쓸 수 있는 키는 term · except 뿐이다")
+        else:
+            raise SystemExit(f"{where}: do_not_translate[{n}] 은 문자열 또는 "
+                             f'{{"term", "except"}} 객체여야 한다')
+        if not isinstance(term, str) or not term:
+            raise SystemExit(f"{where}: do_not_translate[{n}] 의 term 이 비었거나 문자열이 아니다")
+        if not isinstance(exc, dict) or not all(
+                isinstance(k, str) and k and isinstance(v, str) and v for k, v in exc.items()):
+            raise SystemExit(f"{where}: '{term}' 의 except 는 {{언어: 대체어}} 이고 둘 다 "
+                             f"비지 않은 문자열이어야 한다")
+        if term not in terms:
+            terms.append(term)
+        if exc:
+            excepts.setdefault(term, {}).update(exc)
+    return terms, excepts
+
+
+def _lang_key(lang: str) -> str:
+    """`pt-BR` · `pt_br` · `PT_BR` 를 같은 열쇠로. 부분 일치(pt → pt_BR)는 하지 않는다 —
+    예외가 의도하지 않은 변종까지 번지면 그것도 조용한 오류다."""
+    return (lang or "").replace("-", "_").lower()
+
+
+def dnt_for_lang(source: dict, lang: str) -> tuple[list[str], dict[str, str]]:
+    """이 언어에서의 금지어 규칙을 (그대로 둘 용어, {용어: 대체어}) 로 돌려준다.
+
+    source 는 load_config 또는 load_glossary 의 결과다. 대체어가 있는 용어는
+    '그대로 둘 용어' 에서 빠진다."""
+    key = _lang_key(lang)
+    replace: dict[str, str] = {}
+    for term, by_lang in source.get("do_not_translate_except", {}).items():
+        for l, repl in by_lang.items():
+            if _lang_key(l) == key:
+                replace[term] = repl
+    keep = [t for t in source.get("do_not_translate", []) if t and t not in replace]
+    return keep, replace
 
 
 def budget_for(cfg: dict, kind: str) -> float:
@@ -174,28 +245,42 @@ def budget_for(cfg: dict, kind: str) -> float:
 
 
 def load_glossary(cfg: dict) -> dict:
-    """프로젝트 용어집. 없으면 빈 것을 돌려준다 —— 없다고 실패시키지 않는다."""
+    """프로젝트 용어집. 없으면 빈 것을 돌려준다 —— 없다고 실패시키지 않는다.
+
+    do_not_translate 는 용어 문자열 목록, do_not_translate_except 는
+    {용어: {언어: 대체어}} 로 돌려준다(설정 쪽과 용어집 쪽을 합친 것)."""
+    base = {"do_not_translate": list(cfg.get("do_not_translate", [])),
+            "do_not_translate_except": {t: dict(v) for t, v in
+                                        cfg.get("do_not_translate_except", {}).items()},
+            "terms": {}}
     rel = cfg.get("project_glossary")
     if not rel:
-        return {"do_not_translate": cfg.get("do_not_translate", []), "terms": {}}
+        return base
     p = Path(cfg["_root"]) / rel
     if not p.exists():
-        return {"do_not_translate": cfg.get("do_not_translate", []), "terms": {}}
+        return base
     g = json.loads(p.read_text(encoding="utf-8"))
     g.setdefault("terms", {})
-    g.setdefault("do_not_translate", [])
-    # 설정 쪽 금지어와 합친다
-    merged = list(dict.fromkeys(g["do_not_translate"] + cfg.get("do_not_translate", [])))
-    g["do_not_translate"] = merged
+    g_terms, g_exc = parse_do_not_translate(g.get("do_not_translate", []), str(p))
+    # 설정 쪽 금지어와 합친다. 같은 용어의 같은 언어 예외는 설정 쪽이 이긴다
+    g["do_not_translate"] = list(dict.fromkeys(g_terms + base["do_not_translate"]))
+    merged_exc = {t: dict(v) for t, v in g_exc.items()}
+    for t, v in base["do_not_translate_except"].items():
+        merged_exc.setdefault(t, {}).update(v)
+    g["do_not_translate_except"] = merged_exc
     return g
 
 
 # ── 입출력 ───────────────────────────────────────────────────────────────────
 
 def write_bundle(path: str | Path, cfg: dict, lang: str, items: list[Item]) -> None:
+    # 이 언어의 금지어 규칙을 번들에 같이 실어 모델이 배치마다 본다
+    keep, replace = dnt_for_lang(load_glossary(cfg), lang)
     payload = {
         "source_lang": cfg.get("source", "en"),
         "target_lang": lang,
+        "do_not_translate": keep,              # 글자 그대로 둔다
+        "do_not_translate_replace": replace,   # 이 언어에서는 정확히 이 말로 바꾼다
         "count": len(items),
         "items": [i.to_json() for i in items],
     }

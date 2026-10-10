@@ -123,7 +123,7 @@ O/X 만 받는다.**
   "source": "en",
   "targets": ["de", "ja", "zh_Hant", "fr"],
   "project_glossary": "i18n/glossary.json",
-  "do_not_translate": ["Acme", "Acme Studio"],
+  "do_not_translate": ["Acme", "Acme Studio", { "term": "Wi-Fi", "except": { "de": "WLAN" } }],
   "length_budget": { "button": 1.3, "menu": 1.5, "default": 1.6, "body": 3.0 },
   "units": [
     { "path": "desktop/ui",  "format": "gettext",   "platform": ["windows", "apple"], "primary": "windows" },
@@ -135,6 +135,12 @@ O/X 만 받는다.**
 
 **프로젝트 용어집과 금지어는 전 대상 공통이고, 플랫폼 용어집만 대상마다 갈린다.**
 같은 개념이 플랫폼마다 다른 단어가 되는 것을 프로젝트 용어집이 막는다.
+
+`do_not_translate` 는 문자열 목록이거나, 문자열과 `{ "term", "except" }` 객체를 섞은
+목록이다. `{ "term": "Wi-Fi", "except": { "de": "WLAN" } }` 는 "Wi-Fi 는 모든 언어에서
+그대로 두되, `de` 에서만 정확히 `WLAN` 으로 쓴다" 는 뜻이다. 플랫폼 용어집이 어떤
+언어에서 금지어를 다르게 옮기면(세 용어집 모두 독일어에서 Wi-Fi 를 WLAN 으로) 금지어를
+목록에서 빼지 말고 그 언어만 `except` 로 적는다 —— 빼면 다른 언어에서 검사가 꺼진다.
 
 ---
 
@@ -215,7 +221,8 @@ python SKILL_DIR/scripts/glossary.py term   --lang de "Settings" "Forget This De
   (`%1` · `{}` · `%1$s`). `references/formats.md` 참조
 - **HTML 태그를 그대로 둔다.** 위치는 문장 구조상 옮길 수 있지만 태그를 빠뜨리거나
   새로 만들면 화면이 깨진다
-- 금지어는 **글자 그대로** 남긴다. 음역도 하지 않는다
+- 금지어는 **글자 그대로** 남긴다. 음역도 하지 않는다. 단 번들의 `do_not_translate_replace`
+  에 적힌 용어는 이 언어에서 **그 대체어 그대로** 쓴다(예: de 에서 Wi-Fi → WLAN)
 - 언어별 함정은 **`references/languages.md`** 에 있다. 대상 언어 절만 읽어라
 
 ---
@@ -226,6 +233,9 @@ python SKILL_DIR/scripts/glossary.py term   --lang de "Settings" "Forget This De
 python SKILL_DIR/scripts/check.py --source work/de.json --config <프로젝트>/.i18n.json
 ```
 
+언어는 번들의 `target_lang` 에서 읽는다(`--lang` 으로 덮어쓸 수 있다). 금지어 처리의
+자체 시험은 `python SKILL_DIR/scripts/selftest_dnt.py`.
+
 여섯 가지를 본다. **앞의 세 개는 사람 눈으로 못 잡고 역번역으로도 안 잡히므로
 가장 중요하다.**
 
@@ -233,7 +243,7 @@ python SKILL_DIR/scripts/check.py --source work/de.json --config <프로젝트>/
 |---|---|
 | **플레이스홀더** | `%1` 이 사라지거나 번호가 바뀌면 **런타임에 문자열이 깨진다** |
 | **HTML 태그** | `<br>` `<strong>` 이 빠지면 **화면 레이아웃이 깨진다** |
-| **번역 금지어** | 브랜드가 번역되면 **제품 이름이 사라진다** |
+| **번역 금지어** | 브랜드가 번역되면 **제품 이름이 사라진다**. 언어별 `except` 가 있으면 그 언어에서는 원문 용어가 남거나 대체어가 빠진 것을 오류로 잡는다 |
 | 길이 초과 | 단추가 잘린다 (`Einstellu…`) |
 | 용어 일관성 | 같은 단어가 화면마다 다르면 **다른 기능으로 읽힌다** |
 | 누락 · 빈 값 | 배치가 뒤쪽을 빠뜨렸을 때 |

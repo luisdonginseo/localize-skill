@@ -84,7 +84,7 @@ git clone https://github.com/luisdonginseo/localize-skill.git "$HOME/.claude/ski
   "source": "en",
   "targets": ["de", "ja", "zh_Hant", "fr"],
   "project_glossary": "i18n/glossary.json",
-  "do_not_translate": ["Acme", "Acme Studio"],
+  "do_not_translate": ["Acme", "Acme Studio", { "term": "Wi-Fi", "except": { "de": "WLAN" } }],
   "length_budget": { "button": 1.3, "menu": 1.5, "default": 1.6, "body": 3.0 },
   "units": [
     { "path": "desktop/translations", "format": "qt-ts",     "platform": ["windows"] },
@@ -97,6 +97,14 @@ git clone https://github.com/luisdonginseo/localize-skill.git "$HOME/.claude/ski
 **플랫폼은 대상 파일 단위로 붙습니다.** 한 리포지토리에 윈도우 호스트와 안드로이드
 클라이언트가 같이 있는 경우가 흔하기 때문입니다. 프로젝트 용어집과 금지어만 전체
 공통입니다.
+
+**번역 금지어의 언어별 예외.** `do_not_translate` 는 문자열 목록이거나, 문자열과
+`{ "term": "Wi-Fi", "except": { "de": "WLAN" } }` 객체를 섞은 목록입니다. 이 예는
+"Wi-Fi 는 모든 언어에서 그대로 두되, `de` 에서만 정확히 `WLAN` 으로 쓴다" 는 뜻이고,
+`check.py` 는 `de` 에서 원문 용어가 남아 있거나 `WLAN` 이 빠지면 오류로 잡습니다.
+다른 언어에서는 여전히 `Wi-Fi` 를 요구합니다. 언어 코드는 `pt-BR` · `pt_br` 처럼 표기가
+달라도 같게 보지만 `pt` 가 `pt_BR` 까지 덮지는 않습니다. 자체 시험은
+`python scripts/selftest_dnt.py`.
 
 ## 용어집
 
