@@ -1,0 +1,680 @@
+{
+ "af": {
+  "microsoft": "AFRIKAANS",
+  "aosp": "values-af",
+  "apple": null,
+  "apple_loc": null
+ },
+ "am": {
+  "microsoft": "AMHARIC",
+  "aosp": "values-am",
+  "apple": null,
+  "apple_loc": null
+ },
+ "ar": {
+  "microsoft": "ARABIC",
+  "aosp": "values-ar",
+  "apple": "Arabic",
+  "apple_loc": "ar"
+ },
+ "as": {
+  "microsoft": "ASSAMESE",
+  "aosp": "values-as",
+  "apple": null,
+  "apple_loc": null
+ },
+ "az": {
+  "microsoft": "AZERBAIJANI (LATIN)",
+  "aosp": "values-az",
+  "apple": null,
+  "apple_loc": null
+ },
+ "be": {
+  "microsoft": "BELARUSIAN",
+  "aosp": "values-be",
+  "apple": null,
+  "apple_loc": null
+ },
+ "bg": {
+  "microsoft": "BULGARIAN",
+  "aosp": "values-bg",
+  "apple": null,
+  "apple_loc": null
+ },
+ "bn": {
+  "microsoft": "BANGLA",
+  "aosp": "values-bn",
+  "apple": "Bengali",
+  "apple_loc": "bn"
+ },
+ "bs": {
+  "microsoft": "BOSNIAN (LATIN)",
+  "aosp": "values-bs",
+  "apple": null,
+  "apple_loc": null
+ },
+ "ca": {
+  "microsoft": "CATALAN",
+  "aosp": "values-ca",
+  "apple": "Catalan",
+  "apple_loc": "ca"
+ },
+ "ca_ES_valencia": {
+  "microsoft": "VALENCIAN",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "chr": {
+  "microsoft": "CHEROKEE",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "ckb": {
+  "microsoft": "CENTRAL KURDISH",
+  "aosp": "values-ckb",
+  "apple": null,
+  "apple_loc": null
+ },
+ "cs": {
+  "microsoft": "CZECH",
+  "aosp": "values-cs",
+  "apple": "Czech",
+  "apple_loc": "cs"
+ },
+ "cy": {
+  "microsoft": "WELSH",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "da": {
+  "microsoft": "DANISH",
+  "aosp": "values-da",
+  "apple": "Danish",
+  "apple_loc": "da"
+ },
+ "de": {
+  "microsoft": "GERMAN",
+  "aosp": "values-de",
+  "apple": "German",
+  "apple_loc": "de"
+ },
+ "el": {
+  "microsoft": "GREEK",
+  "aosp": "values-el",
+  "apple": "Greek",
+  "apple_loc": "el"
+ },
+ "en_AU": {
+  "microsoft": null,
+  "aosp": "values-en-rAU",
+  "apple": "Australian_English",
+  "apple_loc": "en-AU"
+ },
+ "en_GB": {
+  "microsoft": null,
+  "aosp": "values-en-rGB",
+  "apple": "British_English",
+  "apple_loc": "en-GB"
+ },
+ "en_IN": {
+  "microsoft": null,
+  "aosp": "values-en-rIN",
+  "apple": "English_(India)",
+  "apple_loc": "en-IN"
+ },
+ "es": {
+  "microsoft": "SPANISH",
+  "aosp": "values-es",
+  "apple": "Spanish",
+  "apple_loc": "es"
+ },
+ "es_419": {
+  "microsoft": "SPANISH",
+  "aosp": "values-es-rUS",
+  "apple": "Latin_American",
+  "apple_loc": "es-419"
+ },
+ "et": {
+  "microsoft": "ESTONIAN",
+  "aosp": "values-et",
+  "apple": null,
+  "apple_loc": null
+ },
+ "eu": {
+  "microsoft": "BASQUE",
+  "aosp": "values-eu",
+  "apple": null,
+  "apple_loc": null
+ },
+ "fa": {
+  "microsoft": "PERSIAN",
+  "aosp": "values-fa",
+  "apple": null,
+  "apple_loc": null
+ },
+ "ff": {
+  "microsoft": "FULAH",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "fi": {
+  "microsoft": "FINNISH",
+  "aosp": "values-fi",
+  "apple": "Finnish",
+  "apple_loc": "fi"
+ },
+ "fil": {
+  "microsoft": "FILIPINO",
+  "aosp": "values-tl",
+  "apple": null,
+  "apple_loc": null
+ },
+ "fr": {
+  "microsoft": "FRENCH",
+  "aosp": "values-fr",
+  "apple": "French",
+  "apple_loc": "fr"
+ },
+ "fr_CA": {
+  "microsoft": "FRENCH",
+  "aosp": "values-fr-rCA",
+  "apple": "Canadian_French",
+  "apple_loc": "fr-CA"
+ },
+ "ga": {
+  "microsoft": "IRISH",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "gd": {
+  "microsoft": "SCOTTISH GAELIC",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "gl": {
+  "microsoft": "GALICIAN",
+  "aosp": "values-gl",
+  "apple": null,
+  "apple_loc": null
+ },
+ "gu": {
+  "microsoft": "GUJARATI",
+  "aosp": "values-gu",
+  "apple": "Gujarati",
+  "apple_loc": "gu"
+ },
+ "ha": {
+  "microsoft": "HAUSA (LATIN)",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "he": {
+  "microsoft": "HEBREW",
+  "aosp": "values-iw",
+  "apple": "Hebrew",
+  "apple_loc": "he"
+ },
+ "hi": {
+  "microsoft": "HINDI",
+  "aosp": "values-hi",
+  "apple": "Hindi",
+  "apple_loc": "hi"
+ },
+ "hr": {
+  "microsoft": "CROATIAN",
+  "aosp": "values-hr",
+  "apple": "Croatian",
+  "apple_loc": "hr"
+ },
+ "hu": {
+  "microsoft": "HUNGARIAN",
+  "aosp": "values-hu",
+  "apple": "Hungarian",
+  "apple_loc": "hu"
+ },
+ "hy": {
+  "microsoft": "ARMENIAN",
+  "aosp": "values-hy",
+  "apple": null,
+  "apple_loc": null
+ },
+ "id": {
+  "microsoft": "INDONESIAN",
+  "aosp": "values-in",
+  "apple": "Indonesian",
+  "apple_loc": "id"
+ },
+ "ig": {
+  "microsoft": "IGBO",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "is": {
+  "microsoft": "ICELANDIC",
+  "aosp": "values-is",
+  "apple": null,
+  "apple_loc": null
+ },
+ "it": {
+  "microsoft": "ITALIAN",
+  "aosp": "values-it",
+  "apple": "Italian",
+  "apple_loc": "it"
+ },
+ "iu": {
+  "microsoft": "INUKTITUT (LATIN)",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "ja": {
+  "microsoft": "JAPANESE",
+  "aosp": "values-ja",
+  "apple": "Japanese",
+  "apple_loc": "ja"
+ },
+ "ka": {
+  "microsoft": "GEORGIAN",
+  "aosp": "values-ka",
+  "apple": null,
+  "apple_loc": null
+ },
+ "kk": {
+  "microsoft": "KAZAKH",
+  "aosp": "values-kk",
+  "apple": null,
+  "apple_loc": null
+ },
+ "km": {
+  "microsoft": "KHMER",
+  "aosp": "values-km",
+  "apple": null,
+  "apple_loc": null
+ },
+ "kn": {
+  "microsoft": "KANNADA",
+  "aosp": "values-kn",
+  "apple": "Kannada",
+  "apple_loc": "kn"
+ },
+ "ko": {
+  "microsoft": "KOREAN",
+  "aosp": "values-ko",
+  "apple": "Korean",
+  "apple_loc": "ko"
+ },
+ "kok": {
+  "microsoft": "KONKANI",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "ky": {
+  "microsoft": "KYRGYZ",
+  "aosp": "values-ky",
+  "apple": null,
+  "apple_loc": null
+ },
+ "lb": {
+  "microsoft": "LUXEMBOURGISH",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "lo": {
+  "microsoft": "LAO",
+  "aosp": "values-lo",
+  "apple": null,
+  "apple_loc": null
+ },
+ "lt": {
+  "microsoft": "LITHUANIAN",
+  "aosp": "values-lt",
+  "apple": null,
+  "apple_loc": null
+ },
+ "lv": {
+  "microsoft": "LATVIAN",
+  "aosp": "values-lv",
+  "apple": null,
+  "apple_loc": null
+ },
+ "mk": {
+  "microsoft": "MACEDONIAN",
+  "aosp": "values-mk",
+  "apple": null,
+  "apple_loc": null
+ },
+ "ml": {
+  "microsoft": "MALAYALAM",
+  "aosp": "values-ml",
+  "apple": "Malayalam",
+  "apple_loc": "ml"
+ },
+ "mn": {
+  "microsoft": "MONGOLIAN",
+  "aosp": "values-mn",
+  "apple": null,
+  "apple_loc": null
+ },
+ "mr": {
+  "microsoft": "MARATHI",
+  "aosp": "values-mr",
+  "apple": "Marathi",
+  "apple_loc": "mr"
+ },
+ "ms": {
+  "microsoft": "MALAY",
+  "aosp": "values-ms",
+  "apple": "Malay",
+  "apple_loc": "ms"
+ },
+ "mt": {
+  "microsoft": "MALTESE",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "my": {
+  "microsoft": "BURMESE",
+  "aosp": "values-my",
+  "apple": null,
+  "apple_loc": null
+ },
+ "nb": {
+  "microsoft": "NORWEGIAN BOKM??L",
+  "aosp": "values-nb",
+  "apple": "Norwegian_Bokmal",
+  "apple_loc": "nb"
+ },
+ "ne": {
+  "microsoft": "NEPALI",
+  "aosp": "values-ne",
+  "apple": null,
+  "apple_loc": null
+ },
+ "nl": {
+  "microsoft": "DUTCH",
+  "aosp": "values-nl",
+  "apple": "Dutch",
+  "apple_loc": "nl"
+ },
+ "nn": {
+  "microsoft": "NORWEGIAN NYNORSK",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "nso": {
+  "microsoft": "SESOTHO SA LEBOA",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "or": {
+  "microsoft": "ODIA",
+  "aosp": "values-or",
+  "apple": "Odia",
+  "apple_loc": "or"
+ },
+ "pa": {
+  "microsoft": "PUNJABI (GURMUKHI)",
+  "aosp": "values-pa",
+  "apple": "Punjabi",
+  "apple_loc": "pa"
+ },
+ "pl": {
+  "microsoft": "POLISH",
+  "aosp": "values-pl",
+  "apple": "Polish",
+  "apple_loc": "pl"
+ },
+ "prs": {
+  "microsoft": "DARI",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "ps": {
+  "microsoft": "PASHTO",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "pt_BR": {
+  "microsoft": "PORTUGUESE (BRAZIL)",
+  "aosp": "values-pt-rBR",
+  "apple": "Brazilian",
+  "apple_loc": "pt-BR"
+ },
+ "pt_PT": {
+  "microsoft": "PORTUGUESE (PORTUGAL)",
+  "aosp": "values-pt-rPT",
+  "apple": "Portuguese",
+  "apple_loc": "pt-PT"
+ },
+ "quc": {
+  "microsoft": "K'ICHE'",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "quz": {
+  "microsoft": "QUECHUA",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "ro": {
+  "microsoft": "ROMANIAN",
+  "aosp": "values-ro",
+  "apple": "Romanian",
+  "apple_loc": "ro"
+ },
+ "ru": {
+  "microsoft": "RUSSIAN",
+  "aosp": "values-ru",
+  "apple": "Russian",
+  "apple_loc": "ru"
+ },
+ "rw": {
+  "microsoft": "KINYARWANDA",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "sd": {
+  "microsoft": "SINDHI",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "si": {
+  "microsoft": "SINHALA",
+  "aosp": "values-si",
+  "apple": null,
+  "apple_loc": null
+ },
+ "sk": {
+  "microsoft": "SLOVAK",
+  "aosp": "values-sk",
+  "apple": "Slovak",
+  "apple_loc": "sk"
+ },
+ "sl": {
+  "microsoft": "SLOVENIAN",
+  "aosp": "values-sl",
+  "apple": null,
+  "apple_loc": null
+ },
+ "sq": {
+  "microsoft": "ALBANIAN",
+  "aosp": "values-sq",
+  "apple": null,
+  "apple_loc": null
+ },
+ "sr": {
+  "microsoft": "SERBIAN (CYRILLIC)",
+  "aosp": "values-sr",
+  "apple": null,
+  "apple_loc": null
+ },
+ "sr_Latn": {
+  "microsoft": "SERBIAN (LATIN)",
+  "aosp": "values-b+sr+Latn",
+  "apple": null,
+  "apple_loc": null
+ },
+ "sv": {
+  "microsoft": "SWEDISH",
+  "aosp": "values-sv",
+  "apple": "Swedish",
+  "apple_loc": "sv"
+ },
+ "sw": {
+  "microsoft": "KISWAHILI",
+  "aosp": "values-sw",
+  "apple": null,
+  "apple_loc": null
+ },
+ "ta": {
+  "microsoft": "TAMIL",
+  "aosp": "values-ta",
+  "apple": "Tamil",
+  "apple_loc": "ta"
+ },
+ "te": {
+  "microsoft": "TELUGU",
+  "aosp": "values-te",
+  "apple": "Telugu",
+  "apple_loc": "te"
+ },
+ "tg": {
+  "microsoft": "TAJIK (CYRILLIC)",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "th": {
+  "microsoft": "THAI",
+  "aosp": "values-th",
+  "apple": "Thai",
+  "apple_loc": "th"
+ },
+ "ti": {
+  "microsoft": "TIGRINYA",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "tk": {
+  "microsoft": "TURKMEN",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "tn": {
+  "microsoft": "SETSWANA",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "tr": {
+  "microsoft": "TURKISH",
+  "aosp": "values-tr",
+  "apple": "Turkish",
+  "apple_loc": "tr"
+ },
+ "tt": {
+  "microsoft": "TATAR (CYRILLIC)",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "ug": {
+  "microsoft": "UYGHUR",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "uk": {
+  "microsoft": "UKRAINIAN",
+  "aosp": "values-uk",
+  "apple": "Ukrainian",
+  "apple_loc": "uk"
+ },
+ "ur": {
+  "microsoft": "URDU",
+  "aosp": "values-ur",
+  "apple": "Urdu",
+  "apple_loc": "ur"
+ },
+ "uz": {
+  "microsoft": "UZBEK (LATIN)",
+  "aosp": "values-uz",
+  "apple": null,
+  "apple_loc": null
+ },
+ "vi": {
+  "microsoft": "VIETNAMESE",
+  "aosp": "values-vi",
+  "apple": "Vietnamese",
+  "apple_loc": "vi"
+ },
+ "wo": {
+  "microsoft": "WOLOF",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "xh": {
+  "microsoft": "ISIXHOSA",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "yo": {
+  "microsoft": "YORUBA",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
+ "yue_CN": {
+  "microsoft": null,
+  "aosp": null,
+  "apple": "South_China_Cantonese",
+  "apple_loc": "yue-CN"
+ },
+ "zh_CN": {
+  "microsoft": "CHINESE (SIMPLIFIED)",
+  "aosp": "values-zh-rCN",
+  "apple": "Simplified_Chinese",
+  "apple_loc": "zh-CN"
+ },
+ "zh_HK": {
+  "microsoft": "CHINESE (TRADITIONAL)",
+  "aosp": "values-zh-rHK",
+  "apple": "Hong_Kong",
+  "apple_loc": "zh-HK"
+ },
+ "zh_TW": {
+  "microsoft": "CHINESE (TRADITIONAL)",
+  "aosp": "values-zh-rTW",
+  "apple": "Traditional_Chinese",
+  "apple_loc": "zh-TW"
+ },
+ "zu": {
+  "microsoft": "ISIZULU",
+  "aosp": "values-zu",
+  "apple": null,
+  "apple_loc": null
+ }
+}

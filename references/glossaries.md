@@ -20,54 +20,89 @@
 
 ## 캐시 규칙
 
-**처음 쓸 때 받아서 로컬에 캐시하고, 스킬 안에 넣어 배포하지 않는다.**
+**처음 쓸 때 받아서 로컬에 캐시하고, 스킬 안에 넣어 배포하지 않는다.** 받기 · 풀기 · 색인은 `scripts/glossary.py` 가 한다.
 
 ```
 ~/.cache/localize/glossaries/
-├── microsoft/MicrosoftTermCollection.tbx
-├── apple/<os>_<lang>.lg
-└── aosp/values-<lang>/strings.xml
+├── microsoft/MicrosoftTermCollection.zip   ← 약 170 MB, 100개 언어 전부. 언어별 .tbx 는 fetch 가 꺼낸다
+├── microsoft/<code>.tbx
+├── aosp/{framework,settings}/values[-xx]/strings.xml
+├── apple/dmg/<Name>.dmg                    ← 사람이 받은 원본(언어당 약 4 MB)
+├── apple/<Name>/**/*.lg                    ← import-apple 가 푼 것
+└── index/<code>.json                       ← index 가 만든 색인(언어당 수십 MB)
 ```
 
-이유: MS 는 재배포 조건이 문서 페이지에 없고 ZIP 안 라이선스를 봐야 한다. Apple 은
-**개발자 계정 뒤에 있는 자료**라 재배포하지 않는 것이 안전하다. AOSP 만 Apache-2.0 이라
-재배포가 가능하지만, **규칙을 하나로 두는 편이 단순**하다.
+언어 코드 ↔ 각 소스의 이름은 **`references/platform-languages.json`**(113개 언어). 소스에 없는 언어는 `null`.
+
+| 소스 | 라이선스 · 배포 | 그래서 |
+|---|---|---|
+| Microsoft | 문서가 "다른 용어 모음에 통합 · 기본 IT 용어집으로 사용" 을 허락한다. ZIP 안에 라이선스 파일은 없다 | 각자 받는다(링크가 공개) |
+| Apple | **개발자 계정 뒤의 자료** —— 재배포하지 않는 것이 안전하다 | 각자 자기 계정으로 받는다 |
+| AOSP | Apache-2.0 —— 재배포 가능 | 각자 받아도 몇 초다 |
+
+## 받기 —— 사람이 내려받기를 허락한 뒤
+
+```bash
+python SKILL_DIR/scripts/glossary.py fetch --lang ko de ja zh_TW fr es pt_BR   # Microsoft · AOSP
+```
+
+**Apple 은 자동으로 받지 않는다**(로그인 필요 —— 모델은 비밀번호를 넣지 않는다). 사람이 받는다:
+
+1. <https://developer.apple.com/download/all/?q=Glossaries%20-%20iOS> → **View Details**
+   (무료 Apple Developer 계정. 브라우저의 "다운로드 전에 저장 위치 묻기" 가 켜져 있으면 파일마다 저장 창이 뜬다)
+2. 필요한 언어의 DMG(`platform-languages.json` 의 `apple` 이름 + `.dmg`. 예: `Korean.dmg` · `Traditional Chinese.dmg`)
+3. `python SKILL_DIR/scripts/glossary.py import-apple ~/Downloads` —— 캐시로 옮기고 풀고, 같은 이름의 중복 사본은 지운다
+
+iOS 용어집(2025)이 macOS 용어집(2020)보다 새롭다 —— iOS 를 쓴다. 맥 앱 낱말도 대부분 같다.
+
+그다음 색인:
+
+```bash
+python SKILL_DIR/scripts/glossary.py index --lang ko de ja zh_TW fr es pt_BR
+python SKILL_DIR/scripts/glossary.py status
+```
+
+## 언어 더하기
+
+모든 언어를 미리 받아 둘 필요는 없다 —— **필요한 언어만** 받는다.
+
+1. `glossary.py langs` 에 그 코드가 있는지 본다. 없으면 `platform-languages.json` 에 한 줄을 더한다:
+   Microsoft 이름은 ZIP 목록(`unzip -Z1 MicrosoftTermCollection.zip`), AOSP 폴더는 GitHub
+   `aosp-mirror/platform_frameworks_base/core/res/res` 의 `values-*`(히브리어 `iw`, 인도네시아어 `in` 같은 옛 코드에 주의),
+   Apple 이름은 위 다운로드 페이지의 DMG 이름.
+2. `fetch --lang <코드>` → (Apple DMG 받기 → `import-apple`) → `index --lang <코드>`.
+
+## 다른 컴퓨터 · 다른 사람
+
+- **스킬(스크립트 · 표 · 문서)** 은 그대로 공유한다 —— 용어집 파일은 들어 있지 않다.
+- **자기 다른 컴퓨터:** 위 받기를 다시 한다(Microsoft · AOSP 는 명령 하나, Apple 은 같은 계정으로 DMG 받기 →
+  `import-apple`). 또는 이 캐시 폴더를 **개인 저장소**(비공개 클라우드 드라이브 등)로 옮겨 쓴다 —— 공개 저장소에는 올리지 않는다.
+- **다른 사람:** 각자 자기 계정 · 자기 컴퓨터에서 받는다. 받은 용어집 · 색인을 넘겨주지 않는다.
 
 ---
 
 ## 1. Microsoft — 윈도우
 
-**받기**: <https://learn.microsoft.com/en-us/globalization/reference/microsoft-terminology>
-에서 `.tbx`(ZIP). 약 100개 언어가 한 파일에 들어 있다.
+**받기**: `fetch` 가 받는다 —— <https://learn.microsoft.com/en-us/globalization/reference/microsoft-terminology> 의
+다운로드 링크(`MicrosoftTermCollection.zip`, 약 170 MB, 2024-11 판). 약 100개 언어가 언어별 `.tbx` 로 들어 있다.
 
 문서가 밝히는 용도에 *"다른 terminology collection 에 통합"* 과 *"기본 IT 용어집으로
 사용"* 이 **명시**돼 있다. 즉 우리 용어집에 병합해 쓰는 것은 의도된 사용이다.
 
-**형식** — TBX 는 XML 이다. 필요한 것은 개념별 언어쌍이다.
-
-```xml
-<termEntry>
-  <langSet xml:lang="en-US"><tig><term>Settings</term></tig></langSet>
-  <langSet xml:lang="de-DE"><tig><term>Einstellungen</term></tig></langSet>
-</termEntry>
-```
-
-⚠️ 한 개념에 **여러 term 이 달릴 수 있다.** 첫 번째(또는 `usage="preferred"`)를 쓴다.
-
-⚠️ ZIP 안 라이선스 파일은 **확인하지 않았다.** 스킬을 공개 배포할 계획이 생기면
-그때 확인할 것.
+**형식** — TBX 는 XML 이다. 한 개념에 **여러 term 이 달릴 수 있다** —— 색인은 빈도 순으로 셋까지 남긴다.
 
 ---
 
 ## 2. Apple — macOS · iOS · iPadOS
 
-**받기**: <https://developer.apple.com/localization/resources>
-**조건**: **무료 Apple Developer 계정**이면 된다. 유료 프로그램($99/년)은 필요 없다.
+**받기**: 사람이 받는다(위). 언어마다 앱 · 프레임워크별 `.lg`(XML) 수십 개가 들어 있다.
 
-OS 별 이중언어 용어집을 `.lg`(XML)로 준다 — iOS · iPadOS · macOS · tvOS · watchOS.
+```xml
+<TranslationSet><base loc="en">Forget This Device</base><tran loc="ko">이 기기 지우기</tran></TranslationSet>
+```
 
 🔴 **AppleGlot 도구 자체는 쓰지 마라.** 설치 인증서가 만료됐고 최신 macOS 와 호환이
-깨졌다. **필요한 것은 도구가 아니라 `.lg` 파일**이므로 직접 파싱하면 된다.
+깨졌다. **필요한 것은 도구가 아니라 `.lg` 파일**이므로 직접 파싱한다.
 
 **보조**: [Apple Style Guide](https://support.apple.com/guide/applestyleguide/welcome/web)
 는 계정 없이 공개돼 있다. 다만 **미국 영어 기준**이라 용어집을 대신하지 못하고,
@@ -77,20 +112,9 @@ OS 별 이중언어 용어집을 `.lg`(XML)로 준다 — iOS · iPadOS · macOS
 
 ## 3. AOSP — 안드로이드
 
-**구글은 대역 용어집을 배포하지 않는다.** `developer.android.com` 의 glossary 와
-Material Design glossary 는 **영어 단일 개발 용어**라 UI 번역에 쓸 수 없다.
-
-**대신 AOSP 에서 실제 시스템 문자열을 가져온다.**
-
-```
-https://github.com/aosp-mirror/platform_frameworks_base
-  core/res/res/values-de/strings.xml
-  core/res/res/values-ja/strings.xml
-  core/res/res/values-zh-rTW/strings.xml
-```
-
-`values/strings.xml`(영어)과 `values-<lang>/strings.xml` 을 **`name` 으로 짝지으면
-영어→대상 언어 쌍**이 만들어진다.
+**구글은 대역 용어집을 배포하지 않는다.** 대신 AOSP 의 실제 시스템 문자열을 짝짓는다 ——
+`fetch` 가 `frameworks/base`(시스템 대화상자 · 단추)와 `packages/apps/Settings`(설정 앱)의
+`values/strings.xml`(영어)과 `values-<lang>/strings.xml` 을 받아 `name` 으로 짝짓는다.
 
 🔑 **용어집보다 오히려 정확하다.** 정리된 용어가 아니라 **안드로이드가 실제로 화면에
 쓰는 문자열**이기 때문이다. 그리고 **Apache-2.0 이라 세 소스 중 유일하게 재배포가

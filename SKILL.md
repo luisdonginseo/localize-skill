@@ -27,6 +27,7 @@ SKILL_DIR/scripts/check.py          플레이스홀더 · HTML · 금지어 · �
 SKILL_DIR/scripts/merge.py          원래 포맷으로 되쓰기
 SKILL_DIR/scripts/pseudo.py         의사 현지화 로케일 생성
 SKILL_DIR/scripts/review_report.py  역번역 리포트 조립
+SKILL_DIR/scripts/glossary.py       플랫폼 용어집 받기 · 색인 · 이번 번들에 걸리는 낱말 뽑기
 ```
 
 ---
@@ -50,6 +51,18 @@ python SKILL_DIR/scripts/extract.py --diagnose --root <프로젝트 루트>
 
 **진단 결과를 그대로 보고하고, 사용자가 진행할지 정하게 한다.** 준비가 안 된 상태로
 번역하면 품질이 아니라 쓰레기가 나온다.
+
+### 플랫폼 용어집이 있는지도 본다 —— 없으면 번역을 시작하지 않는다
+
+```bash
+python SKILL_DIR/scripts/glossary.py status
+```
+
+대상 언어마다 microsoft · aosp · apple · index 가 ✓ 여야 한다(그 소스에 없는 언어는 빠져도 된다 ——
+`glossary.py langs` 의 `-`). 빠졌으면 **사람에게 내려받기를 한 번 묻고**(Microsoft 약 170 MB · AOSP 작은 XML),
+허락을 받으면 `fetch --lang …` → (Apple 은 사람이 개발자 계정으로 DMG 를 받은 뒤) `import-apple <폴더>` →
+`index --lang …`. 받는 법 · 라이선스 · 언어를 더하는 법은 `references/glossaries.md`.
+**플랫폼 용어집 없이 번역해 놓고, 용어집이 정할 낱말을 사람에게 취향 문제로 묻지 마라.**
 
 ---
 
@@ -150,9 +163,26 @@ python SKILL_DIR/scripts/extract.py --config <프로젝트>/.i18n.json --lang de
 4. 없으면 네 판단
 ```
 
-플랫폼 용어집을 받고 해당 문자열에 걸리는 항목만 추리는 방법은
-**`references/glossaries.md`** 에 있다. 처음 쓸 때 받아서 로컬에 캐시하고,
-스킬 안에 넣어 배포하지 않는다.
+**프로젝트 용어집은 "우리 고유 개념" 만이다.** 설정 · 완료 · 허용 · 지우기 · 다시 시도처럼 OS 가 이미
+정해 둔 낱말은 프로젝트 용어집에 넣지 말고 플랫폼 용어집을 따른다. 프로젝트 용어집의 낱말을 정할 때도
+먼저 플랫폼 용어집에서 같은 개념의 번역을 찾아 그것을 고른다(예: pair → Apple 한국어 "쌍으로 연결" 과
+업계 표준 "페어링" 중 하나를 근거와 함께).
+
+이번 번들에 걸리는 낱말만 뽑아 번역 프롬프트에 넣는다:
+
+```bash
+python SKILL_DIR/scripts/glossary.py lookup --lang de --source work/de.json --out work/de.glossary.md
+python SKILL_DIR/scripts/glossary.py term   --lang de "Settings" "Forget This Device"   # 하나씩 볼 때
+```
+
+**어느 소스를 따르나:** 표면의 플랫폼이다 —— 맥 · iOS · iPadOS 문자열은 apple, 윈도우는 microsoft,
+안드로이드는 aosp. 한 파일이 두 플랫폼에 보이면(데스크톱 창 · 웹) `.i18n.json` 의 `primary` 를 따른다.
+소스끼리 다르고 그 낱말이 화면 여러 곳에 나오면 프로젝트 용어집에 하나로 고정하고 까닭을 note 에 적는다.
+**플랫폼 용어집이 답하는 것은 사람에게 묻지 않는다** —— 사람에게는 플랫폼 용어집으로도 정해지지 않는
+제품 결정만 올린다.
+
+받는 법 · 캐시 위치 · 라이선스 · 언어 더하기는 **`references/glossaries.md`**. 받은 용어집은 로컬 캐시에만
+두고 스킬 안에 넣어 배포하지 않는다.
 
 ⚠️ **용어집 전체를 프롬프트에 넣지 마라.** 이번 배치의 문자열에 실제로 걸리는 항목만
 추린다. 다 넣으면 컨텍스트만 먹고 엉뚱한 항목이 섞인다.
