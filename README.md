@@ -123,7 +123,19 @@ git clone https://github.com/luisdonginseo/localize-skill.git "$HOME/.claude/ski
 용어집보다 오히려 정확합니다.
 
 용어집은 **처음 쓸 때 받아 로컬에 캐시**하고 리포지토리에 넣지 않습니다
-(`~/.cache/localize/glossaries/`).
+(`~/.cache/localize/glossaries/`). 각자 자기 컴퓨터에서 받습니다 —— Apple 은 자기 개발자 계정으로.
+
+```bash
+python scripts/glossary.py fetch --lang ko de ja        # Microsoft · AOSP (명령 하나)
+# Apple: developer.apple.com/download/all/?q=Glossaries%20-%20iOS 에서 언어별 DMG 를 받은 뒤
+python scripts/glossary.py import-apple ~/Downloads
+python scripts/glossary.py index  --lang ko de ja
+python scripts/glossary.py status                       # 언어마다 무엇이 있나
+python scripts/glossary.py lookup --lang de --source work/de.json --out work/de.glossary.md
+```
+
+언어 코드 ↔ 각 소스의 이름은 `references/platform-languages.json`(113개 언어)에 있고,
+필요한 언어만 받으면 됩니다. 표에 없는 언어는 그 파일에 한 줄을 더합니다.
 
 ## 스크립트 직접 쓰기
 
