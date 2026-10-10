@@ -134,8 +134,9 @@ python scripts/glossary.py status                       # 언어마다 무엇이
 python scripts/glossary.py lookup --lang de --source work/de.json --out work/de.glossary.md
 ```
 
-언어 코드 ↔ 각 소스의 이름은 `references/platform-languages.json`(113개 언어)에 있고,
-필요한 언어만 받으면 됩니다. 표에 없는 언어는 그 파일에 한 줄을 더합니다.
+언어 코드 ↔ 각 소스의 이름은 `references/platform-languages.json`(119개 언어 —— Microsoft 110 · AOSP 83 ·
+Apple 51)에 있고, 필요한 언어만 색인하면 됩니다. Microsoft 는 zip 안에서, Apple 은 DMG 를 잠깐 붙여 읽으므로
+풀어 둘 필요가 없습니다(Apple 읽기는 맥의 `hdiutil` 이 필요합니다 —— 윈도우에서는 맥에서 만든 `index/<code>.json` 을 복사해 씁니다).
 
 ## 스크립트 직접 쓰기
 

@@ -24,15 +24,16 @@
 
 ```
 ~/.cache/localize/glossaries/
-├── microsoft/MicrosoftTermCollection.zip   ← 약 170 MB, 100개 언어 전부. 언어별 .tbx 는 fetch 가 꺼낸다
-├── microsoft/<code>.tbx
-├── aosp/{framework,settings}/values[-xx]/strings.xml
-├── apple/dmg/<Name>.dmg                    ← 사람이 받은 원본(언어당 약 4 MB)
-├── apple/<Name>/**/*.lg                    ← import-apple 가 푼 것
-└── index/<code>.json                       ← index 가 만든 색인(언어당 수십 MB)
+├── microsoft/MicrosoftTermCollection.zip   ← 약 170 MB, 100개 언어 전부. 꺼내지 않고 zip 안에서 바로 읽는다
+├── aosp/{framework,settings}/values[-xx]/strings.xml   ← 모든 언어 합쳐 약 15 MB
+├── apple/dmg/<Name>.dmg                    ← 사람이 받은 원본 51개(약 420 MB). 풀지 않고 index 가 잠깐 붙여 읽는다
+└── index/<code>.json                       ← index 가 만든 색인(언어당 수십 MB, 쓰는 언어만)
 ```
 
-언어 코드 ↔ 각 소스의 이름은 **`references/platform-languages.json`**(113개 언어). 소스에 없는 언어는 `null`.
+(`import-apple --extract` 로 풀어 둘 수도 있다 —— 인도 언어 10개는 `.lg` 가 아니라 `.tmx` 한 파일(언어당 약 270 MB)이라 풀지 않는 것이 낫다.)
+
+언어 코드 ↔ 각 소스의 이름은 **`references/platform-languages.json`**(119개 언어 —— Microsoft 110 · AOSP 83 · Apple 51,
+모두 실제 파일 · 폴더와 맞춰 확인했다). 소스에 없는 언어는 `null`. 모든 언어가 표에 있으니 **필요한 언어만** 색인하면 된다.
 
 | 소스 | 라이선스 · 배포 | 그래서 |
 |---|---|---|
@@ -50,8 +51,10 @@ python SKILL_DIR/scripts/glossary.py fetch --lang ko de ja zh_TW fr es pt_BR   #
 
 1. <https://developer.apple.com/download/all/?q=Glossaries%20-%20iOS> → **View Details**
    (무료 Apple Developer 계정. 브라우저의 "다운로드 전에 저장 위치 묻기" 가 켜져 있으면 파일마다 저장 창이 뜬다)
-2. 필요한 언어의 DMG(`platform-languages.json` 의 `apple` 이름 + `.dmg`. 예: `Korean.dmg` · `Traditional Chinese.dmg`)
-3. `python SKILL_DIR/scripts/glossary.py import-apple ~/Downloads` —— 캐시로 옮기고 풀고, 같은 이름의 중복 사본은 지운다
+2. 필요한 언어의 DMG(`platform-languages.json` 의 `apple` 이름 + `.dmg`. 예: `Korean.dmg` · `Traditional Chinese.dmg`).
+   한 번에 다 받아 두려면 51개 전부(약 420 MB) —— 받기 링크는 `https://download.developer.apple.com/Developer_Tools/glossaries__ios_21842/<Name>.dmg`
+   꼴이다(로그인한 브라우저에서 열어야 받아진다)
+3. `python SKILL_DIR/scripts/glossary.py import-apple ~/Downloads` —— 캐시로 옮기고, 같은 이름의 중복 사본은 지운다(맥의 `hdiutil` 로 읽는다)
 
 iOS 용어집(2025)이 macOS 용어집(2020)보다 새롭다 —— iOS 를 쓴다. 맥 앱 낱말도 대부분 같다.
 
@@ -66,7 +69,7 @@ python SKILL_DIR/scripts/glossary.py status
 
 모든 언어를 미리 받아 둘 필요는 없다 —— **필요한 언어만** 받는다.
 
-1. `glossary.py langs` 에 그 코드가 있는지 본다. 없으면 `platform-languages.json` 에 한 줄을 더한다:
+1. `glossary.py langs` 에 그 코드가 있는지 본다(119개가 이미 있다). 없으면 `platform-languages.json` 에 한 줄을 더한다:
    Microsoft 이름은 ZIP 목록(`unzip -Z1 MicrosoftTermCollection.zip`), AOSP 폴더는 GitHub
    `aosp-mirror/platform_frameworks_base/core/res/res` 의 `values-*`(히브리어 `iw`, 인도네시아어 `in` 같은 옛 코드에 주의),
    Apple 이름은 위 다운로드 페이지의 DMG 이름.

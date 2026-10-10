@@ -53,6 +53,12 @@
   "apple": null,
   "apple_loc": null
  },
+ "bs_Cyrl": {
+  "microsoft": "BOSNIAN (CYRILLIC)",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
  "ca": {
   "microsoft": "CATALAN",
   "aosp": "values-ca",
@@ -73,7 +79,7 @@
  },
  "ckb": {
   "microsoft": "CENTRAL KURDISH",
-  "aosp": "values-ckb",
+  "aosp": null,
   "apple": null,
   "apple_loc": null
  },
@@ -122,7 +128,7 @@
  "en_IN": {
   "microsoft": null,
   "aosp": "values-en-rIN",
-  "apple": "English_(India)",
+  "apple": "English_India",
   "apple_loc": "en-IN"
  },
  "es": {
@@ -209,6 +215,12 @@
   "apple": "Gujarati",
   "apple_loc": "gu"
  },
+ "guc": {
+  "microsoft": "WAYUU",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
  "ha": {
   "microsoft": "HAUSA (LATIN)",
   "aosp": null,
@@ -226,6 +238,12 @@
   "aosp": "values-hi",
   "apple": "Hindi",
   "apple_loc": "hi"
+ },
+ "hi_Latn": {
+  "microsoft": null,
+  "aosp": null,
+  "apple": "India",
+  "apple_loc": "hi-Latn"
  },
  "hr": {
   "microsoft": "CROATIAN",
@@ -347,6 +365,12 @@
   "apple": null,
   "apple_loc": null
  },
+ "mi": {
+  "microsoft": "MĀORI",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
+ },
  "mk": {
   "microsoft": "MACEDONIAN",
   "aosp": "values-mk",
@@ -393,7 +417,7 @@
   "microsoft": "NORWEGIAN BOKM??L",
   "aosp": "values-nb",
   "apple": "Norwegian_Bokmal",
-  "apple_loc": "nb"
+  "apple_loc": "no"
  },
  "ne": {
   "microsoft": "NEPALI",
@@ -430,6 +454,12 @@
   "aosp": "values-pa",
   "apple": "Punjabi",
   "apple_loc": "pa"
+ },
+ "pa_Arab": {
+  "microsoft": "PUNJABI (ARABIC)",
+  "aosp": null,
+  "apple": null,
+  "apple_loc": null
  },
  "pl": {
   "microsoft": "POLISH",
@@ -620,6 +650,12 @@
  "uz": {
   "microsoft": "UZBEK (LATIN)",
   "aosp": "values-uz",
+  "apple": null,
+  "apple_loc": null
+ },
+ "uz_Cyrl": {
+  "microsoft": "UZBEK (CYRILLIC)",
+  "aosp": null,
   "apple": null,
   "apple_loc": null
  },

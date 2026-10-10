@@ -117,27 +117,21 @@ def cmd_fetch(a) -> int:
     if not zip_path.exists():
         print(f"Microsoft 용어 모음(약 170 MB) 받는 중 → {zip_path}")
         _download(MS_URL, zip_path)
-    if zip_path.exists():
-        with zipfile.ZipFile(zip_path) as z:
-            ascii_name = lambda n: re.sub(r"[^A-Z()' ]", "", n.upper())   # zip 안 이름의 비 ASCII 글자(Å 등)는 인코딩이 깨져 온다
-            by_ascii = {ascii_name(n[:-4]): n for n in z.namelist() if n.endswith(".tbx")}
-            for l in langs:
-                out = ms / f"{l}.tbx"
-                name = LANGS[l][0]
-                if not name:
-                    print(f"  microsoft {l}: 이 소스에 없는 언어")
-                    continue
-                member = by_ascii.get(ascii_name(name))
-                if member and not out.exists():
-                    out.write_bytes(z.read(member))
-                print(f"  microsoft {l}: " + ("있음" if out.exists() else f"zip 에 {name} 없음 —— platform-languages.json 의 이름을 zip 목록과 맞춘다"))
+    for l in langs:
+        if not LANGS[l][0]:
+            print(f"  microsoft {l}: 이 소스에 없는 언어")
+        else:
+            src = _ms_source(l)
+            print(f"  microsoft {l}: " + ("있음(zip 안에서 읽는다)" if src else "zip 에 없음 —— platform-languages.json 의 이름을 맞춘다"))
+            if src:
+                src.close()
     for app, (repo, path) in AOSP_APPS.items():
         for values in ["values"] + [LANGS[l][1] for l in langs if LANGS[l][1]]:
             out = ROOT / "aosp" / app / values / "strings.xml"
             if not out.exists():
                 _download(AOSP_RAW.format(repo=repo, path=path, values=values), out)
         print(f"  aosp/{app}: " + ", ".join(f"{l}={'있음' if LANGS[l][1] and (ROOT / 'aosp' / app / LANGS[l][1] / 'strings.xml').exists() else '없음'}" for l in langs))
-    missing = [l for l in langs if LANGS[l][2] and not (ROOT / "apple" / LANGS[l][2]).exists()]
+    missing = [l for l in langs if LANGS[l][2] and not (ROOT / "apple" / "dmg" / f"{LANGS[l][2]}.dmg").exists()]
     if missing:
         print("\nApple 용어집은 Apple 개발자 계정(무료)으로 사람이 받는다 —— 자동으로 받지 않는다:")
         print(f"  1) {APPLE_PAGE} 에서 'View Details'")
@@ -147,49 +141,66 @@ def cmd_fetch(a) -> int:
 
 
 def cmd_import_apple(a) -> int:
+    """사람이 받은 Apple 용어집 DMG 를 캐시로 옮긴다. 풀지 않고 DMG 로 둔다 —— index 가 그때 붙여 읽는다.
+    --extract 면 풀어 둔다(자주 색인을 다시 만들 언어만. 인도 언어 .tmx 는 언어당 약 270 MB)."""
     src = Path(a.path).expanduser()
     dmgs = [src] if src.is_file() else sorted(src.glob("*.dmg"))
     known = {v[2] for v in LANGS.values() if v[2]}
-    done = 0
+    keep_dir = ROOT / "apple" / "dmg"
+    keep_dir.mkdir(parents=True, exist_ok=True)
+    moved = 0
     for dmg in dmgs:
-        name = re.sub(r" \(\d+\)$", "", dmg.stem).replace(" ", "_")
+        name = re.sub(r" \(\d+\)$", "", dmg.stem).replace(" ", "_").replace("(", "").replace(")", "")
         if name not in known:
             continue
-        keep = ROOT / "apple" / "dmg" / f"{name}.dmg"
-        keep.parent.mkdir(parents=True, exist_ok=True)
+        keep = keep_dir / f"{name}.dmg"
         if dmg.resolve() != keep.resolve():
             if keep.exists():
                 dmg.unlink()                       # 같은 이름이 이미 있으면 새로 받은 사본은 지운다
-            else:
-                shutil.move(str(dmg), keep)
-        out = ROOT / "apple" / name
-        if out.exists() and any(out.rglob("*.lg")):
-            print(f"  apple {name}: 이미 있음")
-            continue
-        mp = Path(tempfile.mkdtemp())
-        try:
-            subprocess.run(["hdiutil", "attach", "-readonly", "-nobrowse", "-mountpoint", str(mp), str(keep)],
-                           check=True, capture_output=True)
-            shutil.copytree(mp, out, dirs_exist_ok=True)
-            print(f"  apple {name}: .lg {len(list(out.rglob('*.lg')))}개")
-            done += 1
-        finally:
-            subprocess.run(["hdiutil", "detach", str(mp)], capture_output=True)
-            shutil.rmtree(mp, ignore_errors=True)
-    if not done:
-        print("  풀 DMG 가 없다(이름이 LANGS 의 Apple 이름과 맞는지 본다)")
+                print(f"  apple {name}: 이미 있음 —— 받은 사본을 지움")
+                continue
+            shutil.move(str(dmg), keep)
+        moved += 1
+        print(f"  apple {name}: {keep}")
+        if a.extract:
+            out = ROOT / "apple" / name
+            mp = Path(tempfile.mkdtemp())
+            try:
+                subprocess.run(["hdiutil", "attach", "-readonly", "-nobrowse", "-mountpoint", str(mp), str(keep)],
+                               check=True, capture_output=True)
+                shutil.copytree(mp, out, dirs_exist_ok=True)
+            finally:
+                subprocess.run(["hdiutil", "detach", str(mp)], capture_output=True)
+                shutil.rmtree(mp, ignore_errors=True)
+    if not moved:
+        print("  옮긴 DMG 가 없다(이름이 platform-languages.json 의 apple 이름과 맞는지 본다)")
     return 0
 
 
 # ── 읽기 ────────────────────────────────────────────────────────────────────
 
-def _ms(b: Builder, lang: str) -> int:
+def _ms_source(lang: str):
+    """언어별 .tbx —— 꺼내 둔 파일이 있으면 그것, 없으면 zip 안에서 바로 읽는다(꺼내지 않아 디스크를 아낀다)."""
     path = ROOT / "microsoft" / f"{lang}.tbx"
-    if not path.exists():
+    if path.exists():
+        return open(path, "rb")
+    zip_path = ROOT / "microsoft" / "MicrosoftTermCollection.zip"
+    name = LANGS[lang][0]
+    if not name or not zip_path.exists():
+        return None
+    ascii_name = lambda n: re.sub(r"[^A-Z()' ]", "", n.upper())
+    z = zipfile.ZipFile(zip_path)
+    member = {ascii_name(n[:-4]): n for n in z.namelist() if n.endswith(".tbx")}.get(ascii_name(name))
+    return z.open(member) if member else None
+
+
+def _ms(b: Builder, lang: str) -> int:
+    src = _ms_source(lang)
+    if src is None:
         return 0
     n = 0
     xml_lang = "{http://www.w3.org/XML/1998/namespace}lang"
-    for _, el in ET.iterparse(path, events=("end",)):
+    for _, el in ET.iterparse(src, events=("end",)):
         if el.tag != "termEntry":
             continue
         en, tr = [], []
@@ -234,26 +245,75 @@ def _aosp(b: Builder, lang: str) -> int:
     return n
 
 
-def _apple(b: Builder, lang: str) -> int:
-    folder = ROOT / "apple" / (LANGS[lang][2] or "-")
-    if not LANGS[lang][2] or not folder.exists():
-        return 0
-    want = LANGS[lang][3].lower().replace("_", "-")
+_BAD_XML = re.compile(rb"[\x00-\x08\x0b\x0c\x0e-\x1f]")
+
+
+def _events(path: Path):
+    """XML 끝 이벤트 —— Apple 파일에는 XML 에 쓸 수 없는 제어 글자(\\b 등)가 섞여 있어 걸러 가며 읽는다."""
+    parser = ET.XMLPullParser(events=("end",))
+    with open(path, "rb") as f:
+        while chunk := f.read(1 << 20):
+            parser.feed(_BAD_XML.sub(b"", chunk))
+            yield from parser.read_events()
+    parser.close()
+    yield from parser.read_events()
+
+
+def _apple_files(folder: Path):
+    return sorted(list(folder.rglob("*.lg")) + list(folder.rglob("*.tmx")))
+
+
+def _apple_parse(b: Builder, files, want: str) -> int:
     n = 0
-    for path in sorted(folder.rglob("*.lg")):
+    for path in files:
         try:
-            for _, el in ET.iterparse(path, events=("end",)):
-                if el.tag != "TranslationSet":
-                    continue
-                base, tran = el.find("base"), el.find("tran")
-                if base is not None and tran is not None and base.text and tran.text \
-                        and (tran.get("loc") or "").lower().replace("_", "-") == want:
-                    b.add(base.text, tran.text, "apple")
-                    n += 1
-                el.clear()
+            if path.suffix == ".lg":
+                for _, el in _events(path):
+                    if el.tag != "TranslationSet":
+                        continue
+                    base, tran = el.find("base"), el.find("tran")
+                    if base is not None and tran is not None and base.text and tran.text \
+                            and (tran.get("loc") or "").lower().replace("_", "-") == want:
+                        b.add(base.text, tran.text, "apple")
+                        n += 1
+                    el.clear()
+            else:                                   # .tmx —— 인도 언어들은 이 꼴로 온다(언어당 약 270 MB)
+                xml_lang = "{http://www.w3.org/XML/1998/namespace}lang"
+                for _, el in _events(path):
+                    if el.tag != "tu":
+                        continue
+                    segs = {}
+                    for tuv in el.iter("tuv"):
+                        seg = tuv.find("seg")
+                        segs[(tuv.get(xml_lang) or "").lower()] = "".join(seg.itertext()) if seg is not None else ""
+                    if segs.get("en") and segs.get(want):
+                        b.add(segs["en"], segs[want], "apple")
+                        n += 1
+                    el.clear()
         except ET.ParseError:
             print(f"  ! 읽지 못함: {path.name}", file=sys.stderr)
     return n
+
+
+def _apple(b: Builder, lang: str) -> int:
+    name = LANGS[lang][2]
+    if not name:
+        return 0
+    want = (LANGS[lang][3] or lang).lower().replace("_", "-")
+    folder = ROOT / "apple" / name
+    if folder.exists() and _apple_files(folder):
+        return _apple_parse(b, _apple_files(folder), want)
+    dmg = ROOT / "apple" / "dmg" / f"{name}.dmg"
+    if not dmg.exists():
+        return 0
+    mp = Path(tempfile.mkdtemp())               # 풀어 두지 않은 언어는 DMG 를 잠깐 붙여 읽는다(디스크를 아낀다)
+    try:
+        subprocess.run(["hdiutil", "attach", "-readonly", "-nobrowse", "-mountpoint", str(mp), str(dmg)],
+                       check=True, capture_output=True)
+        return _apple_parse(b, _apple_files(mp), want)
+    finally:
+        subprocess.run(["hdiutil", "detach", str(mp)], capture_output=True)
+        shutil.rmtree(mp, ignore_errors=True)
 
 
 # ── 명령 ────────────────────────────────────────────────────────────────────
@@ -270,9 +330,9 @@ def cmd_status(_a) -> int:
     print(f"캐시: {ROOT}")
     rows = []
     for l in LANGS:
-        have = [("microsoft", (ROOT / "microsoft" / f"{l}.tbx").exists()),
+        have = [("microsoft", bool(LANGS[l][0]) and ((ROOT / "microsoft" / f"{l}.tbx").exists() or (ROOT / "microsoft" / "MicrosoftTermCollection.zip").exists())),
                 ("aosp", bool(LANGS[l][1]) and (ROOT / "aosp" / "framework" / LANGS[l][1] / "strings.xml").exists()),
-                ("apple", bool(LANGS[l][2]) and (ROOT / "apple" / LANGS[l][2]).exists()),
+                ("apple", bool(LANGS[l][2]) and ((ROOT / "apple" / LANGS[l][2]).exists() or (ROOT / "apple" / "dmg" / f"{LANGS[l][2]}.dmg").exists())),
                 ("index", (INDEX / f"{l}.json").exists())]
         if any(h for _, h in have):
             rows.append(f"  {l:7s} " + "  ".join(f"{n} {'✓' if h else '·'}" for n, h in have))
@@ -360,7 +420,7 @@ def main() -> int:
     sub.add_parser("status")
     sub.add_parser("langs")
     p = sub.add_parser("fetch"); p.add_argument("--lang", nargs="+", required=True)
-    p = sub.add_parser("import-apple"); p.add_argument("path")
+    p = sub.add_parser("import-apple"); p.add_argument("path"); p.add_argument("--extract", action="store_true")
     p = sub.add_parser("index"); p.add_argument("--lang", nargs="+", required=True)
     p = sub.add_parser("lookup"); p.add_argument("--lang", required=True); p.add_argument("--source", required=True); p.add_argument("--out")
     p = sub.add_parser("term"); p.add_argument("--lang", required=True); p.add_argument("terms", nargs="+")
